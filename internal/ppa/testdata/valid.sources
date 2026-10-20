@@ -1,0 +1,7 @@
+Types: deb
+URIs: https://ppa.launchpadcontent.net/example/ppa/ubuntu/
+Suites: noble
+Components: main
+Architectures: amd64
+Signed-By: /etc/apt/keyrings/example.gpg
+Enabled: yes

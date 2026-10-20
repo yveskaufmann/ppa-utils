@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://ppa.launchpadcontent.net/example/ppa/ubuntu/
+Suites: noble
+Components: main
+Enabled: no

@@ -1,0 +1,6 @@
+Types: deb deb-src
+URIs: https://ppa.launchpadcontent.net/example/ppa/ubuntu/
+Suites: noble noble-updates
+Components: main universe
+Architectures: amd64 arm64
+Signed-By: /etc/apt/keyrings/example.gpg
