@@ -10,7 +10,7 @@ PREFIX ?= /usr/local
 
 # Semantic version passed into binaries via -ldflags (see internal/version.Version).
 VERSION ?= 0.0.1
-VERSION_LDFLAGS := -X yv35.com/ppa/ppa-utils.Version=$(VERSION)
+VERSION_LDFLAGS := -X yv35.com/ppa/ppa-utils/internal/version.Version=$(VERSION)
 
 # Go environment and architecture settings
 GO_BIN_DIR := $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then echo "$$GOBIN"; else go env GOPATH | cut -d: -f1 | sed 's|$$|/bin|'; fi)
@@ -32,7 +32,7 @@ build: build-cli   # Build all application binaries
 
 .PHONY: build-cli
 build-cli: # Build cli application binary
-	go build -mod=vendor -ldflags "$(VERSION_LDFLAGS)" -o $(BUILD_OUTPUT_DIR) $(CLI_ENTRY_DIR)
+	go build -ldflags "$(VERSION_LDFLAGS)" -o $(BUILD_OUTPUT_DIR) $(CLI_ENTRY_DIR)
 
 .PHONY: clean
 clean: # Clean build artifacts

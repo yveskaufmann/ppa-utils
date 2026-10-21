@@ -1,0 +1,4 @@
+Types: deb
+X-Custom: ignored
+URIs: https://example.com
+Suites: noble

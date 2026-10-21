@@ -1,0 +1,4 @@
+Types: deb
+URIs: https://example.com
+Suites: noble
+Bogus-Field: x

@@ -91,13 +91,13 @@ xsmSJvz4V0lvb3D6WbNcIJ9qJrCw7gZwJFELCLbDXHRV8MJAxPvP7nqJzVyAHRB2
 			got, err := ReadSourceFile(path)
 
 			if (err != nil) != tt.wantErr {
-				t.Fatalf("readSourceFile() error = %v, wantErr %v", err, tt.wantErr)
+				t.Fatalf("ReadSourceFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr {
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("readSourceFile() = %+v, want %+v", got, tt.want)
+				t.Errorf("ReadSourceFile() = %+v, want %+v", got, tt.want)
 			}
 		})
 	}
