@@ -10,7 +10,7 @@ PREFIX ?= /usr/local
 
 # Semantic version passed into binaries via -ldflags (see internal/version.Version).
 VERSION ?= 0.0.1
-VERSION_LDFLAGS := -X yv35.com/ppa/ppa-utils/internal/version.Version=$(VERSION)
+VERSION_LDFLAGS := -X yv35.com/ppa-utils/internal/version.Version=$(VERSION)
 
 # Go environment and architecture settings
 GO_BIN_DIR := $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then echo "$$GOBIN"; else go env GOPATH | cut -d: -f1 | sed 's|$$|/bin|'; fi)
@@ -18,7 +18,7 @@ GOARCH ?= $(shell go env GOARCH)
 GOOS ?= $(shell go env GOOS)
 
 # Main entry points for each binary
-CLI_ENTRY_DIR := ./cmd/ppautil
+CLI_ENTRY_DIR := ./cmd/ppa-utils
 
 # Output directory for built binaries
 BUILD_OUTPUT_DIR := bin/

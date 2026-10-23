@@ -7,7 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
 )
 
 func testRows() []sourcelist.Row {

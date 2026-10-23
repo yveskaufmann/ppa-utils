@@ -1,10 +1,10 @@
-# ppautil
+# ppa-utils
 
 Check and manage your PPAs before an Ubuntu upgrade.
 
 When you upgrade Ubuntu, every PPA you use has to publish packages for the new
 release. If one does not, apt can no longer update or install packages from it
-afterwards. `ppautil` tells you which of your PPAs will not be supported by the
+afterwards. `ppa-utils` tells you which of your PPAs will not be supported by the
 next Ubuntu release, so you know whether it is safe to upgrade, which tells you if
 you would lose access to one or more PPAs.
 
@@ -16,10 +16,10 @@ you would lose access to one or more PPAs.
 ## Installation
 
 ```sh
-go install yv35.com/ppa/ppa-utils/cmd/ppautil@latest
+go install yv35.com/ppa-utils/cmd/ppa-utils@latest
 ```
 
-This puts the `ppautil` binary into `$(go env GOPATH)/bin`. Make sure that
+This puts the `ppa-utils` binary into `$(go env GOPATH)/bin`. Make sure that
 directory is on your `PATH`.
 
 ## Usage
@@ -32,10 +32,10 @@ Each source is marked as supported (✅) or not supported (❌).
 
 ```sh
 # Check against the release you are about to upgrade to
-ppautil check
+ppa-utils check
 
 # Check against a specific release, e.g. "noble"
-ppautil check noble
+ppa-utils check noble
 ```
 
 Without an argument the target is the next Ubuntu release after the one you
@@ -49,16 +49,16 @@ components, architectures and signing key.
 
 ```sh
 # All sources as a table
-ppautil list
+ppa-utils list
 
 # Only sources that use the suite "resolute"
-ppautil list --suite resolute
+ppa-utils list --suite resolute
 
 # Enabled Launchpad PPAs for arm64
-ppautil list --uri ppa.launchpadcontent.net --arch arm64 --status enabled
+ppa-utils list --uri ppa.launchpadcontent.net --arch arm64 --status enabled
 
 # As JSON, for scripts
-ppautil list --json
+ppa-utils list --json
 ```
 
 Filters match when the column contains the given text, ignoring case. When you
@@ -67,7 +67,7 @@ give several filters, all of them must match.
 ### Browse and manage sources interactively
 
 ```sh
-ppautil list --interactive
+ppa-utils list --interactive
 ```
 
 This opens a view similar to `htop`. You can filter and sort live and enable or
@@ -85,28 +85,28 @@ If the output is not a terminal, `--interactive` prints the plain table.
 
 ## Shell completion
 
-`ppautil` can generate completion scripts for bash, zsh, fish and PowerShell.
+`ppa-utils` can generate completion scripts for bash, zsh, fish and PowerShell.
 Release codes are completed for `check`, and flag values for `list`.
 
 ```sh
 # bash: load it in the current session
-source <(ppautil completion bash)
+source <(ppa-utils completion bash)
 
 # zsh: load it in the current session
-source <(ppautil completion zsh)
+source <(ppa-utils completion zsh)
 
 # fish
-ppautil completion fish | source
+ppa-utils completion fish | source
 ```
 
 To load it in every new session, write the script to your shell's completion
 directory, for example:
 
 ```sh
-ppautil completion bash | sudo tee /etc/bash_completion.d/ppautil
+ppa-utils completion bash | sudo tee /etc/bash_completion.d/ppa-utils
 ```
 
-Run `ppautil completion <shell> --help` for the details of each shell.
+Run `ppa-utils completion <shell> --help` for the details of each shell.
 
 ## Limitations
 
@@ -122,8 +122,8 @@ Clone the repository and use the `Makefile`. Run `make help` to list the goals.
 | Goal          | Example                                | Usage                                                                                   |
 | ------------- | -------------------------------------- | --------------------------------------------------------------------------------------- |
 | `build`       | `make build`                           | Build all binaries into `bin/`. Currently the same as `build-cli`.                      |
-| `build-cli`   | `make build-cli VERSION=0.1.0`         | Build `bin/ppautil` and set the version shown by `ppautil version`.                     |
-| `run`         | `make run ARGS="check noble"`          | Run the CLI with `go run`, without building a binary. `ARGS` are passed to `ppautil`.   |
+| `build-cli`   | `make build-cli VERSION=0.1.0`         | Build `bin/ppa-utils` and set the version shown by `ppa-utils version`.                 |
+| `run`         | `make run ARGS="check noble"`          | Run the CLI with `go run`, without building a binary. `ARGS` are passed to `ppa-utils`. |
 | `test`        | `make test ARGS="-run TestSetEnabled"` | Run the unit tests of `./internal/...`. `ARGS` are passed to `go test`.                 |
 | `clean`       | `make clean`                           | Delete the built binaries in `bin/`.                                                    |
 | `clean-cache` | `make clean-cache`                     | Clear the Go build cache and the module cache. Modules are downloaded again afterwards. |
@@ -134,12 +134,12 @@ A typical change looks like this:
 ```sh
 make test
 make run ARGS="list --suite noble"
-make build-cli && ./bin/ppautil version
+make build-cli && ./bin/ppa-utils version
 ```
 
 ### Project layout
 
-- `cmd/ppautil` only registers the commands.
+- `cmd/ppa-utils` only registers the commands.
 - `internal/cli/commands/<name>` holds one package per command.
 - `internal/cli/root`, `clitext`, `sourcelist` and `tui` are shared by the commands.
 - `internal/ppa` and `internal/distinfo` read the apt sources and the Ubuntu release data.

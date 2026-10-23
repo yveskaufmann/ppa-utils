@@ -1,12 +1,12 @@
-// Package root defines the ppautil root command.
+// Package root defines the ppa-utils root command.
 package root
 
 import "github.com/spf13/cobra"
 
-// New returns the ppautil root command. Subcommands are registered by the caller.
+// New returns the ppa-utils root command. Subcommands are registered by the caller.
 func New() *cobra.Command {
 	return &cobra.Command{
-		Use:           "ppautil",
+		Use:           "ppa-utils",
 		Short:         "Utilities for managing Ubuntu PPAs",
 		SilenceUsage:  true,
 		SilenceErrors: true,

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 func testSources() []ppa.SourceFile {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 func TestSudoTogglerRefusesOfficialSource(t *testing.T) {

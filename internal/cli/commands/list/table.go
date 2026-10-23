@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
 )
 
 func writeJSON(w io.Writer, rows []sourcelist.Row) error {

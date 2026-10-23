@@ -1,4 +1,4 @@
-// Package version defines the ppautil version command.
+// Package version defines the ppa-utils version command.
 package version
 
 import (
@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"yv35.com/ppa/ppa-utils/internal/version"
+	"yv35.com/ppa-utils/internal/version"
 )
 
 // Options holds everything the version command needs to run.
@@ -26,7 +26,7 @@ func New(fn func(*Options) error) *cobra.Command {
 
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print the ppautil version",
+		Short: "Print the ppa-utils version",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			opts.Out = cmd.OutOrStdout()
@@ -40,6 +40,6 @@ func New(fn func(*Options) error) *cobra.Command {
 }
 
 func run(opts *Options) error {
-	_, err := fmt.Fprintf(opts.Out, "ppautil %s\n", opts.Version)
+	_, err := fmt.Fprintf(opts.Out, "ppa-utils %s\n", opts.Version)
 	return err
 }

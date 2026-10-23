@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
-	"yv35.com/ppa/ppa-utils/internal/cli/tui/sources"
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/tui/sources"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 func testRows() []sourcelist.Row {

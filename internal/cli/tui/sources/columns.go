@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
 )
 
 // column is one column of the table.

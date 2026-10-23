@@ -10,7 +10,7 @@ func TestRunPrintsVersion(t *testing.T) {
 	if err := run(&Options{Version: "1.2.3", Out: &out}); err != nil {
 		t.Fatalf("run() error = %v", err)
 	}
-	if got, want := out.String(), "ppautil 1.2.3\n"; got != want {
+	if got, want := out.String(), "ppa-utils 1.2.3\n"; got != want {
 		t.Errorf("output = %q, want %q", got, want)
 	}
 }

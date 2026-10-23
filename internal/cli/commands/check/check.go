@@ -1,4 +1,4 @@
-// Package check defines the ppautil check command.
+// Package check defines the ppa-utils check command.
 package check
 
 import (
@@ -13,9 +13,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/clitext"
-	"yv35.com/ppa/ppa-utils/internal/distinfo"
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/cli/clitext"
+	"yv35.com/ppa-utils/internal/distinfo"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 // Options holds everything the check command needs to run.
@@ -49,10 +49,10 @@ func New(fn func(*Options) error) *cobra.Command {
 		`),
 		Example: clitext.Examples(`
 			# Check if all my PPAs support the release I am about to upgrade to
-			ppautil check
+			ppa-utils check
 
 			# Check if all my PPAs already support Ubuntu "noble"
-			ppautil check noble
+			ppa-utils check noble
 		`),
 		Args:              cobra.MaximumNArgs(1),
 		ValidArgsFunction: completeReleaseCodes,

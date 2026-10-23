@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
 )
 
 var (
@@ -43,7 +43,7 @@ func (m *Model) View() string {
 }
 
 func (m *Model) titleLine() string {
-	title := fmt.Sprintf("ppautil list  %d of %d sources", len(m.view), len(m.rows))
+	title := fmt.Sprintf("ppa-utils list  %d of %d sources", len(m.view), len(m.rows))
 	if filter := m.filter.Value(); filter != "" && m.mode != modeFilter {
 		title += "  filter: " + filter
 	}

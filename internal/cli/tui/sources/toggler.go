@@ -8,7 +8,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 // Toggler enables or disables the source file at a path.
@@ -37,7 +37,7 @@ func (SudoToggler) SetEnabled(path string, enabled bool) tea.Cmd {
 		return func() tea.Msg { return done(writeFileAtomic(path, content)) }
 	}
 
-	tmp, err := os.CreateTemp("", "ppautil-*.sources")
+	tmp, err := os.CreateTemp("", "ppa-utils-*.sources")
 	if err != nil {
 		return func() tea.Msg { return done(err) }
 	}
@@ -75,7 +75,7 @@ func writeFileAtomic(path string, content []byte) error {
 		mode = info.Mode().Perm()
 	}
 
-	tmp, err := os.CreateTemp(filepath.Dir(path), ".ppautil-*")
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".ppa-utils-*")
 	if err != nil {
 		return err
 	}

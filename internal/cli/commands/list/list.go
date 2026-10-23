@@ -1,4 +1,4 @@
-// Package list defines the ppautil list command.
+// Package list defines the ppa-utils list command.
 package list
 
 import (
@@ -10,10 +10,10 @@ import (
 	"github.com/charmbracelet/x/term"
 	"github.com/spf13/cobra"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/clitext"
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
-	"yv35.com/ppa/ppa-utils/internal/cli/tui/sources"
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/cli/clitext"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/tui/sources"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 // Options holds everything the list command needs to run.
@@ -80,19 +80,19 @@ func New(deps Deps, fn func(*Options) error) *cobra.Command {
 		`),
 		Example: clitext.Examples(`
 			# List all installed PPAs as a table
-			ppautil list
+			ppa-utils list
 
 			# List only the sources that use the suite "resolute"
-			ppautil list --suite resolute
+			ppa-utils list --suite resolute
 
 			# List the sources of Launchpad PPAs that are enabled for arm64
-			ppautil list --uri ppa.launchpadcontent.net --arch arm64
+			ppa-utils list --uri ppa.launchpadcontent.net --arch arm64
 
 			# Print the list as JSON array, for scripts
-			ppautil list --json
+			ppa-utils list --json
 
 			# Browse the sources interactively: filter, sort, enable and disable them
-			ppautil list --interactive
+			ppa-utils list --interactive
 		`),
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {

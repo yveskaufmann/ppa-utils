@@ -20,7 +20,7 @@ func TestRootHelpListsRegisteredCommands(t *testing.T) {
 	if err := cmd.Execute(); err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
-	for _, want := range []string{"ppautil", "sub", "a subcommand"} {
+	for _, want := range []string{"ppa-utils", "sub", "a subcommand"} {
 		if !strings.Contains(out.String(), want) {
 			t.Errorf("help output missing %q:\n%s", want, out.String())
 		}

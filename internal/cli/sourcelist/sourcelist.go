@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 // InlineKey is shown instead of the signing key when it is embedded in the source file.

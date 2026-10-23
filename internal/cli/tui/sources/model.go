@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/sourcelist"
+	"yv35.com/ppa-utils/internal/cli/sourcelist"
 )
 
 // Config holds the dependencies of the view.

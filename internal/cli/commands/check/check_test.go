@@ -12,7 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"yv35.com/ppa/ppa-utils/internal/ppa"
+	"yv35.com/ppa-utils/internal/ppa"
 )
 
 var testKnown = releases{
