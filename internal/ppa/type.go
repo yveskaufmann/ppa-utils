@@ -1,6 +1,7 @@
 package ppa
 
 type Architecture string
+
 const (
 	ArchitectureAMD64 Architecture = "amd64"
 	ArchitectureARM64 Architecture = "arm64"
@@ -44,8 +45,6 @@ func (e EnabledStatus) IsEnabled() bool {
 	return e != EnabledStatusNo
 }
 
-
-
 type SourceFile struct {
 	// Location of the source file within the repository or filesystem.
 	Path string
@@ -70,4 +69,3 @@ type SourceFile struct {
 func (sf *SourceFile) IsEnabled() bool {
 	return sf.Enabled.IsEnabled()
 }
-

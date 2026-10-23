@@ -10,17 +10,16 @@ import (
 )
 
 type UbuntuRegistry struct {
-	distributions []Distribution
-	releaseCodes []string
+	distributions    []Distribution
+	releaseCodes     []string
 	versionToDistIdx map[string]int
-
 }
 
 const distroInfoPath = "/usr/share/distro-info/ubuntu.csv"
 
 func NewUbuntuRegistry() (*UbuntuRegistry, error) {
 
-	registry :=  &UbuntuRegistry{
+	registry := &UbuntuRegistry{
 		distributions:    []Distribution{},
 		releaseCodes:     []string{},
 		versionToDistIdx: make(map[string]int),
@@ -144,7 +143,7 @@ func (r *UbuntuRegistry) FindDistribution(filter func(Distribution) bool) []Dist
 }
 
 var (
-	ErrNoNextRelease = fmt.Errorf("no next release found")
+	ErrNoNextRelease    = fmt.Errorf("no next release found")
 	ErrNoCurrentRelease = fmt.Errorf("no current release found")
 )
 
@@ -178,4 +177,3 @@ func (r *UbuntuRegistry) FindNextRelease() (Distribution, error) {
 
 	return r.distributions[distIdx], ErrNoNextRelease
 }
-

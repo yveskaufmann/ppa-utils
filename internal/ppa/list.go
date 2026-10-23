@@ -14,9 +14,9 @@ func ListSourceFilePaths() []string {
 	entries, err := os.ReadDir(DEFAULT_SOURCE_FILE_PATH)
 	if err != nil {
 		slog.Error("Failed to read source file directory",
-		"error", err,
-		"path", DEFAULT_SOURCE_FILE_PATH,
-	)
+			"error", err,
+			"path", DEFAULT_SOURCE_FILE_PATH,
+		)
 		return []string{}
 	}
 

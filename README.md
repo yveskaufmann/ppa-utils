@@ -123,11 +123,17 @@ Clone the repository and use the `Makefile`. Run `make help` to list the goals.
 | ------------- | -------------------------------------- | --------------------------------------------------------------------------------------- |
 | `build`       | `make build`                           | Build all binaries into `bin/`. Currently the same as `build-cli`.                      |
 | `build-cli`   | `make build-cli VERSION=0.1.0`         | Build `bin/ppa-utils` and set the version shown by `ppa-utils version`.                 |
+| `fmt`         | `make fmt`                             | Format all Go files in `cmd/` and `internal/` with `gofmt`.                             |
+| `hooks`       | `make hooks`                           | Install the git hooks from `.githooks/`. Run it once after cloning.                     |
 | `run`         | `make run ARGS="check noble"`          | Run the CLI with `go run`, without building a binary. `ARGS` are passed to `ppa-utils`. |
 | `test`        | `make test ARGS="-run TestSetEnabled"` | Run the unit tests of `./internal/...`. `ARGS` are passed to `go test`.                 |
 | `clean`       | `make clean`                           | Delete the built binaries in `bin/`.                                                    |
 | `clean-cache` | `make clean-cache`                     | Clear the Go build cache and the module cache. Modules are downloaded again afterwards. |
 | `help`        | `make help`                            | Show the available goals.                                                               |
+
+The pre-commit hook installed by `make hooks` runs `gofmt` on the staged Go
+files and adds the formatted result to the commit. It stops if a staged file
+also has unstaged changes, so it never stages anything you did not choose.
 
 A typical change looks like this:
 

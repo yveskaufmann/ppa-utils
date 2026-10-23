@@ -7,9 +7,9 @@ import (
 )
 
 type DistributionInfo struct {
-	Version string
+	Version  string
 	Codename string
-	Name string
+	Name     string
 }
 
 // GetCurrentDistributionInfo retrieves the current distribution information from /etc/os-release.
@@ -28,10 +28,9 @@ func GetCurrentDistributionInfo() (DistributionInfo, error) {
 	for reader.Scan() {
 		line := strings.TrimSpace(reader.Text())
 
-		if len(line) == 0 || line == "=" || line[0] == '#'  {
+		if len(line) == 0 || line == "=" || line[0] == '#' {
 			continue
 		}
-
 
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {

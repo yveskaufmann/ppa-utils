@@ -43,6 +43,18 @@ clean-cache: # Clean Go build cache
 	go clean -cache -modcache
 
 ##################################
+# FORMAT & HOOKS - TARGETS
+##################################
+
+.PHONY: fmt
+fmt: # Format all Go files with gofmt
+	gofmt -l -w cmd internal
+
+.PHONY: hooks
+hooks: # Install the git hooks from .githooks (formats staged Go files on commit)
+	git config core.hooksPath .githooks
+
+##################################
 # RUN & DEV - TARGETS
 ##################################
 
