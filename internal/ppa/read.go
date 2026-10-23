@@ -14,14 +14,39 @@ type sourceField struct {
 	Value string
 }
 
-// ReadSourceFile reads the source file at the given path and returns a SourceFile struct.
+// ReadSourceFile reads the first entry of the source file at the given path.
 func ReadSourceFile(path string) (*SourceFile, error) {
+	sources, err := ReadSourceFiles(path)
+	if err != nil {
+		return nil, err
+	}
+	if len(sources) == 0 {
+		return nil, fmt.Errorf("no entry in source file %s", path)
+	}
+	return &sources[0], nil
+}
 
-	fields, err := readSourceFields(path)
+// ReadSourceFiles reads all entries (stanzas separated by blank lines) of the
+// source file at the given path.
+func ReadSourceFiles(path string) ([]SourceFile, error) {
+	stanzas, err := readSourceStanzas(path)
 	if err != nil {
 		return nil, err
 	}
 
+	sources := make([]SourceFile, 0, len(stanzas))
+	for i, fields := range stanzas {
+		source, err := parseSourceFields(path, fields)
+		if err != nil {
+			return nil, err
+		}
+		source.Stanza = i
+		sources = append(sources, *source)
+	}
+	return sources, nil
+}
+
+func parseSourceFields(path string, fields []sourceField) (*SourceFile, error) {
 	sourceFile := &SourceFile{
 		Path: path,
 	}
@@ -59,12 +84,12 @@ func ReadSourceFile(path string) (*SourceFile, error) {
 	return sourceFile, nil
 }
 
-// readSourceFields reads the deb822 fields of the source file at the given path.
+// readSourceStanzas reads the deb822 stanzas of the source file at the given path.
 //
-// Lines starting with a space or tab continue the value of the previous field.
-// A continuation line consisting of a single "." represents an empty line,
-// as used within embedded PGP public keys.
-func readSourceFields(path string) ([]sourceField, error) {
+// Stanzas are separated by blank lines. Lines starting with a space or tab
+// continue the value of the previous field. A continuation line consisting of
+// a single "." represents an empty line, as used within embedded PGP public keys.
+func readSourceStanzas(path string) ([][]sourceField, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
@@ -74,12 +99,24 @@ func readSourceFields(path string) ([]sourceField, error) {
 
 	scanner := bufio.NewScanner(f)
 
+	var stanzas [][]sourceField
 	var fields []sourceField
+
+	endStanza := func() {
+		if len(fields) > 0 {
+			stanzas = append(stanzas, fields)
+			fields = nil
+		}
+	}
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if strings.TrimSpace(line) == "" || line[0] == '#' {
+		if strings.TrimSpace(line) == "" {
+			endStanza()
+			continue
+		}
+		if line[0] == '#' {
 			continue
 		}
 
@@ -113,10 +150,11 @@ func readSourceFields(path string) ([]sourceField, error) {
 			Value: strings.TrimSpace(parts[1]),
 		})
 	}
+	endStanza()
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("failed to parse source file %s: %w", path, err)
 	}
 
-	return fields, nil
+	return stanzas, nil
 }

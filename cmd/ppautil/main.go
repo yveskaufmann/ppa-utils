@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"os"
 
-	"yv35.com/ppa/ppa-utils/internal/cli/check"
+	"yv35.com/ppa/ppa-utils/internal/cli/commands/check"
+	"yv35.com/ppa/ppa-utils/internal/cli/commands/list"
+	"yv35.com/ppa/ppa-utils/internal/cli/commands/version"
 	"yv35.com/ppa/ppa-utils/internal/cli/root"
-	"yv35.com/ppa/ppa-utils/internal/cli/version"
 )
 
 func main() {
 	rootCmd := root.New()
 	rootCmd.AddCommand(
 		check.New(nil),
+		list.New(list.DefaultDeps(), nil),
 		version.New(nil),
 	)
 

@@ -45,11 +45,11 @@ func ListSourceFiles() ([]SourceFile, error) {
 	paths := ListSourceFilePaths()
 	var sourceFiles []SourceFile
 	for _, path := range paths {
-		sf, err := ReadSourceFile(path)
+		sfs, err := ReadSourceFiles(path)
 		if err != nil {
 			return nil, err
 		}
-		sourceFiles = append(sourceFiles, *sf)
+		sourceFiles = append(sourceFiles, sfs...)
 	}
 	return sourceFiles, nil
 }

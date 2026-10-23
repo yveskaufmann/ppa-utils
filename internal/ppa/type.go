@@ -38,8 +38,10 @@ func ParseEnabledStatus(value string) EnabledStatus {
 	}
 }
 
+// IsEnabled reports whether the source is enabled. A source without an
+// Enabled field is enabled.
 func (e EnabledStatus) IsEnabled() bool {
-	return e == EnabledStatusYes
+	return e != EnabledStatusNo
 }
 
 
@@ -47,6 +49,8 @@ func (e EnabledStatus) IsEnabled() bool {
 type SourceFile struct {
 	// Location of the source file within the repository or filesystem.
 	Path string
+	// Stanza is the index of the entry within the source file, which can hold several.
+	Stanza int
 	// Types of the source file (e.g., "deb", "binary", "source").
 	Types []string
 	// URIs where the source file can be accessed.
