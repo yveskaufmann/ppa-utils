@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -92,15 +94,16 @@ func run(opts *Options) error {
 		return fmt.Errorf("creating ubuntu dist registry: %w", err)
 	}
 
-	var newCode string
+	var targetDist distinfo.Distribution
 	if opts.Release != "" {
-		newCode = opts.Release
-		if !distInfoReader.IsValidReleaseCode(newCode) {
+		dist, ok := distInfoReader.FindDistributionByCode(opts.Release)
+		if !ok {
 			return fmt.Errorf("unknown Ubuntu release %q, valid releases: %s",
-				newCode, strings.Join(distInfoReader.ListAllReleaseCodes(), ", "))
+				opts.Release, strings.Join(distInfoReader.ListAllReleaseCodes(), ", "))
 		}
+		targetDist = dist
 	} else {
-		nextRelease, err := distInfoReader.FindCurrentRelease()
+		nextRelease, err := distInfoReader.FindNextRelease()
 		if err != nil {
 			if !errors.Is(err, distinfo.ErrNoNextRelease) {
 				return fmt.Errorf("getting current distribution info: %w", err)
@@ -109,20 +112,23 @@ func run(opts *Options) error {
 		} else {
 			fmt.Fprintln(opts.ErrOut, "Next release found:", nextRelease.Series)
 		}
-		newCode = nextRelease.Series
+		targetDist = nextRelease
 	}
+
+	known := newReleases(distInfoReader)
+	target := release{code: targetDist.Series, version: targetDist.Version}
 
 	sourceFiles, err := ppa.ListSourceFiles()
 	if err != nil {
 		return fmt.Errorf("listing source files: %w", err)
 	}
 	for _, sf := range sourceFiles {
-		if !isUsingUbuntuReleaseCode(&sf) {
+		if !isUsingUbuntuReleaseCode(&sf, known) {
 			continue
 		}
 
 		check := "❌ " + sf.URIs[0]
-		if isUbuntuReleaseCodeSupported(&sf, newCode) {
+		if isUbuntuReleaseCodeSupported(&sf, known, target) {
 			check = "✅"
 		}
 		fmt.Fprintf(opts.Out, "%s - %s\n", sf.Path, check)
@@ -130,47 +136,155 @@ func run(opts *Options) error {
 	return nil
 }
 
-var nonUbuntuReleaseCodes = []string{
-	"stable",
-	"/",
-	"",
-	"multiverse",
+// Release codes are looked for as whole tokens. URIs keep "-" inside a token so
+// that names like "lucid-studio" are not mistaken for a release code, while
+// suites and components are split on it so that "noble-updates" is recognized.
+// Release versions like "26.04" are dotted numbers.
+var (
+	uriTokens     = regexp.MustCompile(`[A-Za-z0-9-]+`)
+	plainTokens   = regexp.MustCompile(`[A-Za-z0-9]+`)
+	versionTokens = regexp.MustCompile(`[0-9]+(?:\.[0-9]+)+`)
+
+	// yearMonth is the format of Ubuntu release versions, e.g. "26.04".
+	yearMonth = regexp.MustCompile(`^[0-9]{2}\.[0-9]{2}$`)
+)
+
+// maxInReleaseSize limits how much of an InRelease file is read.
+const maxInReleaseSize = 8 << 20
+
+var httpClient = &http.Client{Timeout: 15 * time.Second}
+
+// releases recognizes the identifiers of Ubuntu releases within source files.
+type releases struct {
+	isCode    func(token string) bool
+	isVersion func(token string) bool
 }
 
-func isUsingUbuntuReleaseCode(source *ppa.SourceFile) bool {
-	if slices.Contains(source.Components, "multiverse") {
+// newReleases recognizes the release codes and the year-month versions
+// (e.g. "26.04") of the Ubuntu releases known to the registry.
+func newReleases(registry *distinfo.UbuntuRegistry) releases {
+	return releases{
+		isCode: registry.IsValidReleaseCode,
+		isVersion: func(token string) bool {
+			if !yearMonth.MatchString(token) {
+				return false
+			}
+			_, ok := registry.FindDistributionByVersion(token)
+			return ok
+		},
+	}
+}
+
+// release identifies a single Ubuntu release. An empty version means it is unknown.
+type release struct {
+	code    string
+	version string
+}
+
+func (k releases) hasRelease(tokens *regexp.Regexp, values []string) bool {
+	return slices.ContainsFunc(values, func(value string) bool {
+		return slices.ContainsFunc(tokens.FindAllString(value, -1), k.isCode) ||
+			slices.ContainsFunc(versionTokens.FindAllString(value, -1), k.isVersion)
+	})
+}
+
+func replaceMatching(tokens *regexp.Regexp, value string, match func(string) bool, replacement string) string {
+	return tokens.ReplaceAllStringFunc(value, func(token string) string {
+		if match(token) {
+			return replacement
+		}
+		return token
+	})
+}
+
+func (k releases) replace(tokens *regexp.Regexp, values []string, target release) []string {
+	replaced := make([]string, len(values))
+	for i, value := range values {
+		value = replaceMatching(tokens, value, k.isCode, target.code)
+		if target.version != "" {
+			value = replaceMatching(versionTokens, value, k.isVersion, target.version)
+		}
+		replaced[i] = value
+	}
+	return replaced
+}
+
+// isUsingUbuntuReleaseCode reports whether the URIs, suites or components of
+// the source contain an Ubuntu release code or version and are therefore
+// specific to one Ubuntu release. Sources without such an indicator work for
+// every release.
+func isUsingUbuntuReleaseCode(source *ppa.SourceFile, known releases) bool {
+	return known.hasRelease(uriTokens, source.URIs) ||
+		known.hasRelease(plainTokens, source.Suites) ||
+		known.hasRelease(plainTokens, source.Components)
+}
+
+// retarget returns a copy of the source in which every release code and
+// version in the URIs, suites and components is replaced by the target's.
+func retarget(source *ppa.SourceFile, known releases, target release) ppa.SourceFile {
+	retargeted := *source
+	retargeted.URIs = known.replace(uriTokens, source.URIs, target)
+	retargeted.Suites = known.replace(plainTokens, source.Suites, target)
+	retargeted.Components = known.replace(plainTokens, source.Components, target)
+	return retargeted
+}
+
+// toInReleaseURL returns the URL of the InRelease file. A suite ending in "/"
+// denotes a flat repository whose InRelease file lies directly below the URI.
+func toInReleaseURL(uri, suite string) string {
+	base := strings.TrimSuffix(uri, "/")
+	if strings.HasSuffix(suite, "/") {
+		if dir := strings.Trim(suite, "/"); dir != "" {
+			base += "/" + dir
+		}
+		return base + "/InRelease"
+	}
+	return fmt.Sprintf("%s/dists/%s/InRelease", base, suite)
+}
+
+// isUbuntuReleaseCodeSupported reports whether the repository of the source
+// publishes the target release. For that, release codes and versions in the
+// source are replaced by the target and the resulting InRelease file has to exist. When
+// components contained a release code they have to be listed in it as well.
+func isUbuntuReleaseCodeSupported(source *ppa.SourceFile, known releases, target release) bool {
+	if len(source.URIs) == 0 || len(source.Suites) == 0 {
 		return false
 	}
 
-	for _, suite := range source.Suites {
-		if !slices.Contains(nonUbuntuReleaseCodes, suite) {
-			return true
-		}
-	}
-	return false
-}
+	targetSource := retarget(source, known, target)
 
-func toInReleaseURL(source *ppa.SourceFile, code string) string {
-	if code == "" {
-		code = source.Suites[0]
-	}
-
-	baseURI := source.URIs[0]
-	if baseURI[len(baseURI)-1] == '/' {
-		baseURI = baseURI[:len(baseURI)-1]
-	}
-
-	return fmt.Sprintf("%s/dists/%s/InRelease", baseURI, code)
-}
-
-func isUbuntuReleaseCodeSupported(source *ppa.SourceFile, code string) bool {
-	inReleaseURL := toInReleaseURL(source, code)
-
-	resp, err := http.Get(inReleaseURL)
+	resp, err := httpClient.Get(toInReleaseURL(targetSource.URIs[0], targetSource.Suites[0]))
 	if err != nil {
 		return false
 	}
 	defer resp.Body.Close()
 
-	return resp.StatusCode == http.StatusOK
+	if resp.StatusCode != http.StatusOK {
+		return false
+	}
+	if slices.Equal(source.Components, targetSource.Components) {
+		return true
+	}
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxInReleaseSize))
+	if err != nil {
+		return false
+	}
+	return releaseListsComponents(body, targetSource.Components)
+}
+
+// releaseListsComponents reports whether the "Components:" field of the
+// release file lists all given components.
+func releaseListsComponents(release []byte, components []string) bool {
+	for _, line := range strings.Split(string(release), "\n") {
+		value, ok := strings.CutPrefix(line, "Components:")
+		if !ok {
+			continue
+		}
+		listed := strings.Fields(value)
+		return !slices.ContainsFunc(components, func(c string) bool {
+			return !slices.Contains(listed, c)
+		})
+	}
+	return false
 }

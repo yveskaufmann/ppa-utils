@@ -10,7 +10,8 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/ppautil"
+            "program": "${workspaceFolder}/cmd/ppautil",
+            "args": ["check"]
         }
     ]
 }

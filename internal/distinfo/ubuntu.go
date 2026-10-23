@@ -123,6 +123,16 @@ func (r *UbuntuRegistry) FindDistributionByVersion(version string) (Distribution
 	return Distribution{}, false
 }
 
+func (r *UbuntuRegistry) FindDistributionByCode(code string) (Distribution, bool) {
+	for _, dist := range r.distributions {
+		if dist.Series == code {
+			return dist, true
+		}
+	}
+
+	return Distribution{}, false
+}
+
 func (r *UbuntuRegistry) FindDistribution(filter func(Distribution) bool) []Distribution {
 	var result []Distribution
 	for _, dist := range r.distributions {
