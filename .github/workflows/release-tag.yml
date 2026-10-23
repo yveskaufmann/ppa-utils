@@ -1,0 +1,44 @@
+name: Release Tag
+
+# Cuts a release: analyzes the Conventional Commits since the last tag and
+# pushes the next vX.Y.Z tag. The tag push starts release-build.yml.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-tag
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    if: github.actor == 'yveskaufmann' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Tags pushed with GITHUB_TOKEN do not trigger other workflows,
+          # so a PAT (or app token) is required here.
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: cycjimmy/semantic-release-action@v4
+        id: semrel
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Summary
+        env:
+          PUBLISHED: ${{ steps.semrel.outputs.new_release_published }}
+          TAG: ${{ steps.semrel.outputs.new_release_git_tag }}
+        run: |
+          if [ "$PUBLISHED" = "true" ]; then
+            echo "Pushed tag $TAG" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No release needed: no feat/fix/breaking commits since the last tag" >> "$GITHUB_STEP_SUMMARY"
+          fi

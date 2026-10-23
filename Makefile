@@ -55,6 +55,35 @@ hooks: # Install the git hooks from .githooks (formats staged Go files on commit
 	git config core.hooksPath .githooks
 
 ##################################
+# RELEASE - TARGETS
+##################################
+
+# Set YES=1 to skip the confirmation prompt of the release target
+YES ?=
+
+.PHONY: release
+release: # Trigger the release-tag workflow on GitHub (asks for confirmation, YES=1 skips it)
+	@command -v gh >/dev/null || { echo "gh is required"; exit 1; }
+	@[ "$$(git branch --show-current)" = "main" ] || { echo "release must be cut from main"; exit 1; }
+	@git diff --quiet && git diff --cached --quiet || { echo "working tree is not clean"; exit 1; }
+	@git fetch origin main --tags --quiet
+	@[ "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" ] || { echo "main is not in sync with origin/main"; exit 1; }
+	@last=$$(git describe --tags --abbrev=0 2>/dev/null); \
+	echo "Commits since $${last:-the beginning}:"; \
+	git log --oneline $${last:+$$last..}HEAD
+	@if [ -z "$(YES)" ]; then \
+		read -r -p "Trigger release from main? [y/N] " answer; \
+		case "$$answer" in y|Y) ;; *) echo "aborted"; exit 1;; esac; \
+	fi
+	gh workflow run release-tag.yml --ref main
+	@sleep 3
+	gh run watch $$(gh run list --workflow=release-tag.yml --limit 1 --json databaseId -q '.[0].databaseId')
+
+.PHONY: release-status
+release-status: # Show the latest release-build workflow runs
+	gh run list --workflow=release-build.yml --limit 5
+
+##################################
 # RUN & DEV - TARGETS
 ##################################
 

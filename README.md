@@ -119,17 +119,19 @@ Run `ppa-utils completion <shell> --help` for the details of each shell.
 
 Clone the repository and use the `Makefile`. Run `make help` to list the goals.
 
-| Goal          | Example                                | Usage                                                                                   |
-| ------------- | -------------------------------------- | --------------------------------------------------------------------------------------- |
-| `build`       | `make build`                           | Build all binaries into `bin/`. Currently the same as `build-cli`.                      |
-| `build-cli`   | `make build-cli VERSION=0.1.0`         | Build `bin/ppa-utils` and set the version shown by `ppa-utils version`.                 |
-| `fmt`         | `make fmt`                             | Format all Go files in `cmd/` and `internal/` with `gofmt`.                             |
-| `hooks`       | `make hooks`                           | Install the git hooks from `.githooks/`. Run it once after cloning.                     |
-| `run`         | `make run ARGS="check noble"`          | Run the CLI with `go run`, without building a binary. `ARGS` are passed to `ppa-utils`. |
-| `test`        | `make test ARGS="-run TestSetEnabled"` | Run the unit tests of `./internal/...`. `ARGS` are passed to `go test`.                 |
-| `clean`       | `make clean`                           | Delete the built binaries in `bin/`.                                                    |
-| `clean-cache` | `make clean-cache`                     | Clear the Go build cache and the module cache. Modules are downloaded again afterwards. |
-| `help`        | `make help`                            | Show the available goals.                                                               |
+| Goal             | Example                                | Usage                                                                                     |
+| ---------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `build`          | `make build`                           | Build all binaries into `bin/`. Currently the same as `build-cli`.                        |
+| `build-cli`      | `make build-cli VERSION=0.1.0`         | Build `bin/ppa-utils` and set the version shown by `ppa-utils version`.                   |
+| `fmt`            | `make fmt`                             | Format all Go files in `cmd/` and `internal/` with `gofmt`.                               |
+| `hooks`          | `make hooks`                           | Install the git hooks from `.githooks/`. Run it once after cloning.                       |
+| `run`            | `make run ARGS="check noble"`          | Run the CLI with `go run`, without building a binary. `ARGS` are passed to `ppa-utils`.   |
+| `test`           | `make test ARGS="-run TestSetEnabled"` | Run the unit tests of `./internal/...`. `ARGS` are passed to `go test`.                   |
+| `release`        | `make release`                         | Trigger the release on GitHub after showing the unreleased commits and asking to confirm. |
+| `release-status` | `make release-status`                  | Show the latest release build runs.                                                       |
+| `clean`          | `make clean`                           | Delete the built binaries in `bin/`.                                                      |
+| `clean-cache`    | `make clean-cache`                     | Clear the Go build cache and the module cache. Modules are downloaded again afterwards.   |
+| `help`           | `make help`                            | Show the available goals.                                                                 |
 
 The pre-commit hook installed by `make hooks` runs `gofmt` on the staged Go
 files and adds the formatted result to the commit. It stops if a staged file
@@ -149,3 +151,12 @@ make build-cli && ./bin/ppa-utils version
 - `internal/cli/commands/<name>` holds one package per command.
 - `internal/cli/root`, `clitext`, `sourcelist` and `tui` are shared by the commands.
 - `internal/ppa` and `internal/distinfo` read the apt sources and the Ubuntu release data.
+
+### Releasing
+
+Commits on `main` never release on their own. `make release` (or running the
+*Release Tag* workflow) derives the next version from the Conventional Commits
+since the last tag (`feat` → minor, `fix` → patch, `!`/`BREAKING CHANGE` → major;
+`chore`, `docs` and `ci` do not release) and pushes a `vX.Y.Z` tag. The tag starts
+the *Release Build* workflow, which builds Linux binaries (amd64 and arm64) with GoReleaser and attaches them to the GitHub release.
+
