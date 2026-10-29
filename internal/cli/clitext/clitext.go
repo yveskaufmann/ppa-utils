@@ -2,6 +2,11 @@
 package clitext
 
 import (
+	"bufio"
+	"errors"
+	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	"github.com/MakeNowJust/heredoc/v2"
@@ -22,4 +27,49 @@ func Examples(s string) string {
 		}
 	}
 	return strings.Join(lines, "\n")
+}
+
+// Prompt asks the user for an input value using the provided reader and writer.
+func Prompt(label, defaultValue string, in io.Reader, out io.Writer) string {
+	if in == nil {
+		in = os.Stdin
+	}
+	if out == nil {
+		out = io.Discard
+	}
+
+	reader := bufio.NewReader(in)
+	if defaultValue == "" {
+		fmt.Fprintf(out, "%s: ", label)
+	} else {
+		fmt.Fprintf(out, "%s [%s]: ", label, defaultValue)
+	}
+	line, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return defaultValue
+	}
+	line = strings.TrimSpace(line)
+	if line == "" {
+		return defaultValue
+	}
+	return line
+}
+
+// ConfirmOverwrite asks the user to confirm overwriting an existing file.
+func ConfirmOverwrite(path string, in io.Reader, out io.Writer) (bool, error) {
+	if in == nil {
+		in = os.Stdin
+	}
+	if out == nil {
+		out = io.Discard
+	}
+
+	fmt.Fprintf(out, "Target file %s already exists. Overwrite it? [y/N]: ", path)
+	reader := bufio.NewReader(in)
+	answer, err := reader.ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return false, err
+	}
+	answer = strings.TrimSpace(answer)
+	return strings.EqualFold(answer, "y") || strings.EqualFold(answer, "yes"), nil
 }

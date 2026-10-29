@@ -64,6 +64,34 @@ ppa-utils list --json
 Filters match when the column contains the given text, ignoring case. When you
 give several filters, all of them must match.
 
+### Create a source file
+
+`create` converts a classic apt `.list` entry into a Deb822 `.sources` file.
+
+```sh
+# Convert a single apt list entry. Real writes require sudo.
+sudo ppa-utils create --from-list-entry 'deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/myrepo.asc] https://example.com/repo stable main'
+
+# Convert an existing .list file. Real writes require sudo.
+sudo ppa-utils create --from-list-file /etc/apt/sources.list.d/myrepo.list
+
+# Build the same source non-interactively with explicit fields.
+sudo ppa-utils create \
+  --uri https://example.com/repo \
+  --suite noble \
+  --components main \
+  --architectures amd64,arm64 \
+  --signed-by /usr/share/keyrings/myrepo.asc \
+  --output /etc/apt/sources.list.d/myrepo.sources
+
+# Review only what would be written without requiring root access
+ppa-utils create --dry --from-list-entry 'deb [arch=amd64] https://example.com/repo stable main'
+```
+
+The `--from-list-entry` value is a single shell argument, so entries with spaces
+must be quoted. When you combine a list source with explicit field flags, the
+flag values take priority and also become the defaults in interactive mode.
+
 ### Browse and manage sources interactively
 
 ```sh
