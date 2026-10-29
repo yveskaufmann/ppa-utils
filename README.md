@@ -36,11 +36,22 @@ ppa-utils check
 
 # Check against a specific release, e.g. "noble"
 ppa-utils check noble
+
+# Check one distro-specific source file against Ubuntu "noble"
+ppa-utils check noble --source docker.sources
+
+# Check one source file (or matching path fragment) that is not distro-specific
+ppa-utils check --source claude-desktop
+
+# The full source filename works as well
+ppa-utils check noble --source claude-desktop.sources
 ```
 
 Without an argument the target is the next Ubuntu release after the one you
 are running. Sources that do not mention a release (for example a PPA that
 publishes one suite for all releases) are treated as supported and not listed.
+With `--source`, only source files whose path contains the given text are checked.
+That means both `claude-desktop` and `claude-desktop.sources` match the same file.
 
 ### List your sources
 

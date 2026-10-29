@@ -22,6 +22,8 @@ import (
 type Options struct {
 	// Release is the target Ubuntu release code. Empty means: derive it from the running system.
 	Release string
+	// SourceFilter limits checks to source files whose path contains this text.
+	SourceFilter string
 
 	Out    io.Writer
 	ErrOut io.Writer
@@ -32,7 +34,7 @@ type Options struct {
 func New(fn func(*Options) error) *cobra.Command {
 	opts := &Options{}
 
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "check [release]",
 		Short: "Check if it is safe to upgrade Ubuntu, i.e. all your PPAs support the new release",
 		Long: clitext.Long(`
@@ -46,6 +48,10 @@ func New(fn func(*Options) error) *cobra.Command {
 			it as supported (✅) or not supported (❌). Without an argument the target
 			release is derived from the running system. With a release code (for
 			example "noble") that release is the target.
+
+			With --source you can limit the check to source files whose file path
+			contains the provided text, for example "claude-desktop" or
+			"claude-desktop.sources".
 		`),
 		Example: clitext.Examples(`
 			# Check if all my PPAs support the release I am about to upgrade to
@@ -53,6 +59,15 @@ func New(fn func(*Options) error) *cobra.Command {
 
 			# Check if all my PPAs already support Ubuntu "noble"
 			ppa-utils check noble
+
+			# Check one distro-specific source file against Ubuntu "noble"
+			ppa-utils check noble --source docker.sources
+
+			# Check one source file that is not distro-specific
+			ppa-utils check --source claude-desktop
+
+			# The full source filename works as well
+			ppa-utils check --source claude-desktop.sources
 		`),
 		Args:              cobra.MaximumNArgs(1),
 		ValidArgsFunction: completeReleaseCodes,
@@ -69,6 +84,10 @@ func New(fn func(*Options) error) *cobra.Command {
 			return run(opts)
 		},
 	}
+
+	cmd.Flags().StringVar(&opts.SourceFilter, "source", "", "only check sources whose file path contains this text")
+
+	return cmd
 }
 
 // completeReleaseCodes completes the release argument with all known Ubuntu release codes,
@@ -123,6 +142,9 @@ func run(opts *Options) error {
 		return fmt.Errorf("listing source files: %w", err)
 	}
 	for _, sf := range sourceFiles {
+		if !matchesSourceFilter(sf.Path, opts.SourceFilter) {
+			continue
+		}
 		if !isUsingUbuntuReleaseCode(&sf, known) {
 			continue
 		}
@@ -134,6 +156,13 @@ func run(opts *Options) error {
 		fmt.Fprintf(opts.Out, "%s - %s\n", sf.Path, check)
 	}
 	return nil
+}
+
+func matchesSourceFilter(path, filter string) bool {
+	if filter == "" {
+		return true
+	}
+	return strings.Contains(strings.ToLower(path), strings.ToLower(strings.TrimSpace(filter)))
 }
 
 // Release codes are looked for as whole tokens. URIs keep "-" inside a token so

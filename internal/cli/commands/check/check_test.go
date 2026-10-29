@@ -175,6 +175,31 @@ func TestIsUbuntuReleaseCodeSupportedChecksComponents(t *testing.T) {
 	}
 }
 
+func TestMatchesSourceFilter(t *testing.T) {
+	tests := []struct {
+		name   string
+		path   string
+		filter string
+		want   bool
+	}{
+		{"empty filter", "/etc/apt/sources.list.d/claude-desktop.sources", "", true},
+		{"matches file stem", "/etc/apt/sources.list.d/claude-desktop.sources", "claude-desktop", true},
+		{"matches full file name", "/etc/apt/sources.list.d/claude-desktop.sources", "claude-desktop.sources", true},
+		{"matches directory", "/etc/apt/sources.list.d/claude-desktop.sources", "sources.list.d", true},
+		{"trimmed", "/etc/apt/sources.list.d/claude-desktop.sources", "  claude-desktop  ", true},
+		{"case-insensitive", "/etc/apt/sources.list.d/claude-desktop.sources", "CLAUDE-DESKTOP", true},
+		{"no match", "/etc/apt/sources.list.d/claude-desktop.sources", "mozilla", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := matchesSourceFilter(tt.path, tt.filter); got != tt.want {
+				t.Errorf("matchesSourceFilter(%q, %q) = %v, want %v", tt.path, tt.filter, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestCheckCommandRejectsTooManyArgs(t *testing.T) {
 	cmd := New(nil)
 	cmd.SetArgs([]string{"noble", "plucky"})
@@ -231,9 +256,12 @@ func TestNewPassesOptionsToFn(t *testing.T) {
 		name        string
 		args        []string
 		wantRelease string
+		wantSource  string
 	}{
-		{"no argument", nil, ""},
-		{"release argument", []string{"noble"}, "noble"},
+		{"no argument", nil, "", ""},
+		{"release argument", []string{"noble"}, "noble", ""},
+		{"source flag", []string{"--source", "claude-desktop"}, "", "claude-desktop"},
+		{"release with source flag", []string{"noble", "--source", "claude-desktop.sources"}, "noble", "claude-desktop.sources"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -252,6 +280,9 @@ func TestNewPassesOptionsToFn(t *testing.T) {
 			}
 			if got.Release != tt.wantRelease {
 				t.Errorf("Release = %q, want %q", got.Release, tt.wantRelease)
+			}
+			if got.SourceFilter != tt.wantSource {
+				t.Errorf("SourceFilter = %q, want %q", got.SourceFilter, tt.wantSource)
 			}
 			if got.Out == nil || got.ErrOut == nil {
 				t.Error("Out and ErrOut should be set")

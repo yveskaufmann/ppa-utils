@@ -57,7 +57,10 @@ Use this section for repository-specific coding expectations that are not univer
   - Do not add AI or tool attribution lines to commit messages.
 - Keep answers brief but informative.
   - Prefer a concise summary with enough detail to explain the decision, tradeoff, or validation.
-  - If a user asks for a new feature, ask targeted clarifying questions before implementation unless the request is explicit enough to proceed without them.
+   - If a user asks for a new feature, ask targeted clarifying questions before implementation unless the request is explicit enough to proceed without them.
+   - If a request is ambiguous or offers multiple approaches/options, do not implement immediately.
+   - In that case, run a short clarification interview first: compare each option by best-fit scenarios, advantages, disadvantages, compatibility impact, and implementation complexity.
+   - End the interview by asking the user to choose a direction, then implement only after that choice is confirmed.
   - If the user has clearly specified a desired outcome, do not block on unnecessary questions.
   - If a user requests to change a user facing behavior ensure we also update the relevant documentation, tests, and prompts to reflect the new behavior. Only do that if the user explicitly request to change an existing feature. In the doubt ask for clarification.
 
