@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    environment:
+      name: release 
+      deployment: false
     steps:
       - uses: actions/checkout@v7
         with:
