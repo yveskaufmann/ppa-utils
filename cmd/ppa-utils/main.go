@@ -7,6 +7,7 @@ import (
 	"yv35.com/ppa-utils/internal/cli/commands/check"
 	"yv35.com/ppa-utils/internal/cli/commands/create"
 	"yv35.com/ppa-utils/internal/cli/commands/list"
+	"yv35.com/ppa-utils/internal/cli/commands/selfupdate"
 	"yv35.com/ppa-utils/internal/cli/commands/version"
 	"yv35.com/ppa-utils/internal/cli/root"
 )
@@ -17,6 +18,7 @@ func main() {
 		check.New(nil),
 		create.New(nil),
 		list.New(list.DefaultDeps(), nil),
+		selfupdate.New(nil),
 		version.New(nil),
 	)
 

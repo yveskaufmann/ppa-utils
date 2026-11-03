@@ -24,6 +24,17 @@ curl -fsSL https://raw.githubusercontent.com/yveskaufmann/ppa-utils/main/install
 This installs the latest release into `~/.local/bin`. Set `INSTALL_DIR` to use
 another directory.
 
+### Update
+
+```sh
+ppa-utils self-update
+```
+
+This replaces the running binary with the latest GitHub release after you
+confirm. Use `--check` to only see whether a newer release exists and `--yes` to
+skip the confirmation. If the binary is in a directory you cannot write to, run
+the command with `sudo`.
+
 ### From source
 
 ```sh

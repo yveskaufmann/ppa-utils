@@ -57,6 +57,12 @@ func Prompt(label, defaultValue string, in io.Reader, out io.Writer) string {
 
 // ConfirmOverwrite asks the user to confirm overwriting an existing file.
 func ConfirmOverwrite(path string, in io.Reader, out io.Writer) (bool, error) {
+	return Confirm(fmt.Sprintf("Target file %s already exists. Overwrite it?", path), in, out)
+}
+
+// Confirm asks a yes/no question and returns true only for "y" or "yes".
+// An empty answer or end of input counts as no.
+func Confirm(question string, in io.Reader, out io.Writer) (bool, error) {
 	if in == nil {
 		in = os.Stdin
 	}
@@ -64,7 +70,7 @@ func ConfirmOverwrite(path string, in io.Reader, out io.Writer) (bool, error) {
 		out = io.Discard
 	}
 
-	fmt.Fprintf(out, "Target file %s already exists. Overwrite it? [y/N]: ", path)
+	fmt.Fprintf(out, "%s [y/N]: ", question)
 	reader := bufio.NewReader(in)
 	answer, err := reader.ReadString('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
