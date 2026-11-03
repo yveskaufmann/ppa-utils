@@ -15,6 +15,17 @@ you would lose access to one or more PPAs.
 
 ## Installation
 
+### Install script
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/yveskaufmann/ppa-utils/main/install.sh | bash
+```
+
+This installs the latest release into `~/.local/bin`. Set `INSTALL_DIR` to use
+another directory.
+
+### From source
+
 ```sh
 go install yv35.com/ppa-utils/cmd/ppa-utils@latest
 ```
